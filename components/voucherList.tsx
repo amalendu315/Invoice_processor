@@ -10,7 +10,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 
 
-export default function VoucherList({ vouchers, onSelect, selectedEntries }:{vouchers:any[], onSelect:(indexes:number[])=>void, selectedEntries:any[]}) {
+export default function VoucherList({ vouchers, onSelect, selectedEntries }:{vouchers:any[], onSelect:(indexes:number[])=>void, selectedEntries:number[]}) {
   const [selectAll, setSelectAll] = useState(false);
 
   const handleCheckboxChange = (index:any) => {
