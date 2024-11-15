@@ -10,11 +10,12 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 
 
-export default function VoucherList({ vouchers, onSelect, selectedEntries }:{vouchers:any[], onSelect:(indexes:number[])=>void, selectedEntries:number[]}) {
+export default function VoucherList({ vouchers, onSelect, selectedEntries }:{vouchers:[], onSelect:(indexes:number[])=>void, selectedEntries:number[]}) {
   const [selectAll, setSelectAll] = useState(false);
 
-  const handleCheckboxChange = (index:any) => {
-    //@ts-ignore
+  //@ts-expect-error due to index
+  const handleCheckboxChange = (index) => {
+    //@ts-expect-error due to prevSelected
     onSelect((prevSelected) => {
       const updatedSelection = [...prevSelected];
       if (updatedSelection.includes(index)) {
@@ -53,7 +54,7 @@ export default function VoucherList({ vouchers, onSelect, selectedEntries }:{vou
                 onCheckedChange={() => handleCheckboxChange(index)}
               />
             </TableCell>
-            <TableCell>{voucher.number}</TableCell>
+            <TableCell>{voucher}</TableCell>
           </TableRow>
         ))}
       </TableBody>

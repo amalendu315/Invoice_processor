@@ -3,7 +3,7 @@ import { AlertCircle } from "lucide-react";
 
 interface ApiResponseAlert {
   title: string;
-  response: any;
+  response: string;
   variant: "default" | "destructive" | null | undefined;
 }
 

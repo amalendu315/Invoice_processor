@@ -15,7 +15,7 @@ import ApiResponseAlert from "./apiResponseAlert";
 
 const VoucherForm = () => {
   const [voucherRange, setVoucherRange] = useState({ start: "", end: "" });
-  const [vouchers, setVouchers] = useState([]);
+  const [vouchers, setVouchers] = useState<[]>([]);
   const [selectedEntries, setSelectedEntries] = useState<number[]>([]);
   const [apiResponse, setApiResponse] = useState<string | null>(null);
 
@@ -35,14 +35,14 @@ const VoucherForm = () => {
 
   const handleSubmitToCloud = async () => {
     try {
-      const response = await fetch("/api/cloud", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ vouchers: selectedEntries }),
-      });
-      const data = await response.json();
+      // const response = await fetch("/api/cloud", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({ vouchers: selectedEntries }),
+      // });
+      // const data = await response.json();
       setApiResponse("Vouchers submitted successfully!");
     } catch (error) {
       console.error("Error submitting data:", error);
@@ -81,7 +81,6 @@ const VoucherForm = () => {
               Fetch Sales Entries
             </Button>
             {vouchers.length > 0 && (
-              //@ts-ignore
               <VoucherList
                 vouchers={vouchers}
                 onSelect={setSelectedEntries}

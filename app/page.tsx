@@ -1,16 +1,12 @@
 "use client";
 import { useState } from "react";
 import VoucherForm from "@/components/voucherForm";
-import ApiResponseAlert from "@/components/apiResponseAlert";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import toast from "react-hot-toast";
 
 export default function Home() {
-  //@ts-ignore
-  const [apiResponse, setApiResponse] = useState(null);
-  //@ts-ignore
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(true);
   const [userName, setUserName] = useState("defaultUser");
@@ -66,13 +62,6 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center h-[89vh] p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {isAuthenticated && <VoucherForm />}
-      {apiResponse && (
-        <ApiResponseAlert
-          response={apiResponse}
-          title={"Response from the cloud"}
-          variant={"default"}
-        />
-      )}
     </div>
   );
 }
