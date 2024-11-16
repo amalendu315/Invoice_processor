@@ -1,95 +1,189 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "./ui/card";
 import VoucherList from "./voucherList";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import toast from "react-hot-toast";
 import ApiResponseAlert from "./apiResponseAlert";
+import { _Voucher } from "@/constants";
+import { Checkbox } from "./ui/checkbox";
+import axios from "axios";
 
 const VoucherForm = () => {
-  const [voucherRange, setVoucherRange] = useState({ start: "", end: "" });
-  const [vouchers, setVouchers] = useState<[]>([]);
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [vouchers, setVouchers] = useState<_Voucher[]>([]);
   const [selectedEntries, setSelectedEntries] = useState<number[]>([]);
   const [apiResponse, setApiResponse] = useState<string | null>(null);
+  const [autoPushEnabled, setAutoPushEnabled] = useState(false);
+  const [autoPushInterval, setAutoPushInterval] = useState(43200000); // 12 hours in milliseconds
+
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+    if(autoPushEnabled){
+      intervalId = setInterval(async () => {
+        const start = 1;
+        const end = 10;
+        try {
+          const response = await fetch(`/api/sales?start=${start}&end=${end}`);
+          const data = await response.json();
+          const voucherNumbers = data.map(
+            (voucher: { number: string }) => voucher.number
+          );
+          await fetch("/api/cloud", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ vouchers: voucherNumbers }),
+          });
+          toast.success("Vouchers pushed automatically!");
+        } catch (error) {
+          console.error("Error in automatic voucher push:", error);
+          toast.error("Failed to push vouchers automatically.");
+        }
+      }, autoPushInterval);
+    }
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [autoPushEnabled, autoPushInterval])
+  
 
   const handleFetchSalesEntries = async () => {
-     try {
-       const response = await fetch(
-         `/api/sales?start=${voucherRange.start}&end=${voucherRange.end}`
-       );
-       const data = await response.json();
-       setVouchers(data);
-       toast.success("Fetched Data For Selected Range!");
-     } catch (error) {
-       console.error("Error fetching data:", error);
-       toast.error("Error Fetching The Data :(");
-     }
+      
+      try {
+            const response = await fetch(
+                `/api/sales?startDate=${dateRange.start}&endDate=${dateRange.end}`
+            );
+            const data = await response.json();
+            // console.log('data', data?.data)
+            setVouchers(data?.data);
+        toast.success("Fetched Data For Selected Range!");
+        console.log('vouchers', vouchers)
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Error Fetching The Data :(");
+      }
   };
 
   const handleSubmitToCloud = async () => {
     try {
+      const dataForCloud = selectedEntries.map((index) => {
+        const voucher = vouchers[index];
+        return {
+          branchName: "AirIQ",
+          vouchertype: "Sales",
+          voucherno: `${voucher.FinPrefix}/${voucher.InvoiceNo}`,
+          voucherdate: voucher.SaleEntryDate.split("T")[0].replace(/-/g, ""),
+          narration: voucher.Pnr,
+          ledgerAllocation: [
+            {
+              lineno: 1,
+              ledgerName: voucher.AccountName,
+              amount: voucher.FinalRate.toFixed(2),
+              drCr: "dr",
+            },
+            {
+              lineno: 2,
+              ledgerName: "Domestic Base Fare",
+              amount: voucher.FinalRate.toFixed(2),
+              drCr: "cr",
+            },
+          ],
+        };
+      });
+      console.log(dataForCloud)
       // const response = await fetch("/api/cloud", {
       //   method: "POST",
       //   headers: {
       //     "Content-Type": "application/json",
       //   },
-      //   body: JSON.stringify({ vouchers: selectedEntries }),
+      //   body: JSON.stringify({ data: dataForCloud }),
       // });
       // const data = await response.json();
-      setApiResponse("Vouchers submitted successfully!");
+      // setApiResponse("Vouchers submitted successfully!");
+      // const lastVoucher = vouchers[vouchers.length - 1];
+      // const lastVoucherDate = lastVoucher?.InvoiceEntryDate;
+      // // 2. Save the date to localStorage
+      // if (lastVoucherDate) {
+      //   const formattedDate = new Date(lastVoucherDate)
+      //     .toISOString()
+      //     .split("T")[0];
+      //   localStorage.setItem("lastUpdatedVoucherDate", formattedDate);
+      // }
     } catch (error) {
       console.error("Error submitting data:", error);
-      toast.error("Error Submitting Data To The Cloud!");
-      // Handle error, e.g., show an error message
+      setApiResponse("Error submitting vouchers to the cloud.");
     }
   };
   return (
     <>
       <Card>
-        <CardHeader>
-          <CardTitle>Voucher Processing</CardTitle>
-          <CardDescription>
-            Enter voucher range and process entries
-          </CardDescription>
-        </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
-            <Input
-              type="number"
-              placeholder="Start Voucher"
-              value={voucherRange.start}
-              onChange={(e) =>
-                setVoucherRange({ ...voucherRange, start: e.target.value })
-              }
-            />
-            <Input
-              type="number"
-              placeholder="End Voucher"
-              value={voucherRange.end}
-              onChange={(e) =>
-                setVoucherRange({ ...voucherRange, end: e.target.value })
-              }
-            />
-            <Button onClick={() => handleFetchSalesEntries()}>
+          <div className="grid gap-4 pt-4">
+            <div>
+              <label htmlFor="startDate">Start Date:</label>
+              <Input
+                type="date"
+                id="startDate"
+                value={dateRange.start}
+                onChange={(e) =>
+                  setDateRange({ ...dateRange, start: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label htmlFor="endDate">End Date:</label>
+              <Input
+                type="date"
+                id="endDate"
+                value={dateRange.end}
+                onChange={(e) =>
+                  setDateRange({ ...dateRange, end: e.target.value })
+                }
+              />
+            </div>
+            <Button onClick={handleFetchSalesEntries}>
               Fetch Sales Entries
             </Button>
-            {vouchers.length > 0 && (
+            {vouchers?.length > 0 && (
               <VoucherList
                 vouchers={vouchers}
                 onSelect={setSelectedEntries}
                 selectedEntries={selectedEntries}
               />
             )}
-            <Button onClick={() => handleSubmitToCloud()}>
-              Submit to Cloud
-            </Button>
+            <Button onClick={handleSubmitToCloud}>Submit to Cloud</Button>
+            {apiResponse && (
+              <div className="mt-4">
+                <p>{apiResponse}</p>
+              </div>
+            )}
+            <Checkbox
+              checked={autoPushEnabled}
+              onCheckedChange={() => setAutoPushEnabled(!autoPushEnabled)}
+            >
+              Enable automatic voucher push
+            </Checkbox>
+            <div>
+              <label htmlFor="autoPushInterval">
+                Auto-push interval (hours):
+              </label>
+              <Input
+                id="autoPushInterval"
+                type="number"
+                value={autoPushInterval / 3600000}
+                onChange={(e) =>
+                  setAutoPushInterval(Number(e.target.value) * 3600000)
+                }
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

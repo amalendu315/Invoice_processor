@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import toast from "react-hot-toast";
 
 export default function Home() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showLoginForm, setShowLoginForm] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [showLoginForm, setShowLoginForm] = useState(false);
   const [userName, setUserName] = useState("defaultUser");
   const [passWord, setPassWord] = useState("");
 
@@ -26,8 +26,8 @@ export default function Home() {
 
   if (showLoginForm) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <Card className="w-96">
+      <div className="flex flex-col items-center justify-center gap-16 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <Card>
           <CardHeader>
             <CardTitle className="text-center">Login</CardTitle>
           </CardHeader>
@@ -60,8 +60,10 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-[89vh] p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {isAuthenticated && <VoucherForm />}
+    <div className="flex flex-col items-center justify-center h-[100vh] gap-16 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="w-full overflow-x-auto h-full">
+        {isAuthenticated && <VoucherForm />}
+      </div>
     </div>
   );
 }

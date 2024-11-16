@@ -3,15 +3,14 @@
 @tailwind utilities;
 
 *{
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 html, body {
-  margin: 0;
-  padding: 0;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  width: 100vw;
 }
 
 @layer base {
