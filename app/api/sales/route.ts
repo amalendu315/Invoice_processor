@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const formattedStartDate = startDate?.replace(/-/g, "/");
     const formattedEndDate = endDate?.replace(/-/g, "/");
 
-    let config = {
+    const config = {
       method: "post",
       maxBodyLength: Infinity,
       url: "https://airiqvendorapi.azurewebsites.net/InvoiceList",
