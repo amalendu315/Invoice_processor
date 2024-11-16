@@ -1,28 +1,28 @@
-// app/api/cloud.ts
-import { NextApiRequest, NextApiResponse } from "next";
+import axios from "axios";
+import { NextResponse } from "next/server";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const { vouchers } = req.body;
-
+export async function POST(request: Request) {
   try {
-    // Replace with your actual cloud service integration
-    const response = await fetch(
-      "https://your-cloud-service.com/api/vouchers",
+    const { data } = await request.json();
+
+    // Submit the data to the cloud server using Axios
+    const response:any[] = await axios.post(
+      "https://saleszing.info/saleszingexchange/uat/aq/vouchers.php",
+      { data: data },
       {
-        method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authtoken: "6719dabc927fd",
         },
-        body: JSON.stringify({ vouchers }),
       }
     );
-    const data = await response.json();
-    res.status(200).json(data);
+    //@ts-ignore
+    return NextResponse.json(response?.data);
   } catch (error) {
     console.error("Error submitting data:", error);
-    res.status(500).json({ error: "Failed to submit vouchers" });
+    return NextResponse.json(
+      { error: "Failed to submit vouchers" },
+      { status: 500 }
+    );
   }
 }

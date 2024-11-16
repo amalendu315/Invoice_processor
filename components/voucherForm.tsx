@@ -11,7 +11,6 @@ import toast from "react-hot-toast";
 import ApiResponseAlert from "./apiResponseAlert";
 import { _Voucher } from "@/constants";
 import { Checkbox } from "./ui/checkbox";
-import axios from "axios";
 
 const VoucherForm = () => {
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
@@ -73,54 +72,72 @@ const VoucherForm = () => {
   };
 
   const handleSubmitToCloud = async () => {
-    try {
-      const dataForCloud = selectedEntries.map((index) => {
-        const voucher = vouchers[index];
-        return {
-          branchName: "AirIQ",
-          vouchertype: "Sales",
-          voucherno: `${voucher.FinPrefix}/${voucher.InvoiceNo}`,
-          voucherdate: voucher.SaleEntryDate.split("T")[0].replace(/-/g, ""),
-          narration: voucher.Pnr,
-          ledgerAllocation: [
-            {
-              lineno: 1,
-              ledgerName: voucher.AccountName,
-              amount: voucher.FinalRate.toFixed(2),
-              drCr: "dr",
-            },
-            {
-              lineno: 2,
-              ledgerName: "Domestic Base Fare",
-              amount: voucher.FinalRate.toFixed(2),
-              drCr: "cr",
-            },
-          ],
-        };
-      });
-      console.log(dataForCloud)
-      // const response = await fetch("/api/cloud", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({ data: dataForCloud }),
-      // });
-      // const data = await response.json();
-      // setApiResponse("Vouchers submitted successfully!");
-      // const lastVoucher = vouchers[vouchers.length - 1];
-      // const lastVoucherDate = lastVoucher?.InvoiceEntryDate;
-      // // 2. Save the date to localStorage
-      // if (lastVoucherDate) {
-      //   const formattedDate = new Date(lastVoucherDate)
-      //     .toISOString()
-      //     .split("T")[0];
-      //   localStorage.setItem("lastUpdatedVoucherDate", formattedDate);
-      // }
-    } catch (error) {
-      console.error("Error submitting data:", error);
-      setApiResponse("Error submitting vouchers to the cloud.");
-    }
+   try {
+     const vouchersPerRequest = 100;
+     for (let i = 0; i < selectedEntries.length; i += vouchersPerRequest) {
+       const dataForCloud = selectedEntries
+         .slice(i, i + vouchersPerRequest)
+         .map((index) => {
+           const voucher = vouchers[index];
+           return {
+             branchName: "AirIQ",
+             vouchertype: "Sales",
+             voucherno: `${voucher.FinPrefix}/${voucher.InvoiceNo}`,
+             voucherdate: voucher.SaleEntryDate.split("T")[0].replace(
+               /-/g,
+               "/"
+             ),
+             narration: voucher.Pnr,
+             ledgerAllocation: [
+               {
+                 lineno: 1,
+                 ledgerName: voucher.AccountName,
+                 amount: voucher.FinalRate.toFixed(2),
+                 drCr: "dr",
+               },
+               {
+                 lineno: 2,
+                 ledgerName: "Domestic Base Fare",
+                 amount: voucher.FinalRate.toFixed(2),
+                 drCr: "cr",
+               },
+             ],
+           };
+         });
+
+       const response = await fetch("/api/cloud", {
+         method: "POST",
+         headers: {
+           "Content-Type": "application/json",
+         },
+         body: JSON.stringify({ data: dataForCloud }),
+       });
+
+       if (!response.ok) {
+         const errorText = await response.text();
+         console.error("Cloud server error:", response.status, errorText);
+         throw new Error(
+           `Cloud server responded with status ${response.status}`
+         );
+       }
+
+       console.log("API response:", await response.json());
+     }
+
+     setApiResponse("Vouchers submitted successfully!");
+
+     const lastVoucher = vouchers[vouchers.length - 1];
+     const lastVoucherDate = lastVoucher?.InvoiceEntryDate;
+     if (lastVoucherDate) {
+       const formattedDate = new Date(lastVoucherDate)
+         .toISOString()
+         .split("T")[0];
+       localStorage.setItem("lastUpdatedVoucherDate", formattedDate);
+     }
+   } catch (error) {
+     console.error("Error submitting data:", error);
+     setApiResponse("Error submitting vouchers to the cloud.");
+   }
   };
   return (
     <>
