@@ -7,8 +7,10 @@ import { Input } from "./ui/input";
 import toast from "react-hot-toast";
 import ApiResponseAlert from "./apiResponseAlert";
 import { _Voucher } from "@/constants";
+import VoucherContext from "@/context/VoucherContext";
 
 const VoucherForm = () => {
+  const { setLastUpdatedVoucherDate } = React.useContext(VoucherContext);
   const [isSalesLoading, setIsSalesLoading] = useState(false);
   const [isCloudLoading, setIsCloudLoading] = useState(false);
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
@@ -136,8 +138,9 @@ const VoucherForm = () => {
         const formattedDate = new Date(lastVoucherDate)
           .toISOString()
           .split("T")[0];
-        localStorage.setItem("lastUpdatedVoucherDate", formattedDate);
+        setLastUpdatedVoucherDate(formattedDate); // Update the context value
       }
+
       toast.success("Vouchers Submitted Successfully!");
       setIsCloudLoading(false);
     } catch (error) {

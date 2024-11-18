@@ -1,14 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import VoucherForm from "@/components/voucherForm";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import toast from "react-hot-toast";
+import AuthContext from "@/context/AuthContext";
 
 export default function Home() {
+  const {isAuthenticated, setIsAuthenticated} = useContext(AuthContext)
   const [isLoading, setIsLoading] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(true);
   const [userName, setUserName] = useState("");
   const [passWord, setPassWord] = useState("");
