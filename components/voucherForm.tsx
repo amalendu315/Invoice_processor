@@ -15,7 +15,6 @@ const VoucherForm = () => {
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [vouchers, setVouchers] = useState<_Voucher[]>([]);
   const [selectedEntries, setSelectedEntries] = useState<number[]>([]);
-  const [apiResponse, setApiResponse] = useState<string | null>(null);
 
   // useEffect(() => {
   //   let intervalId: ReturnType<typeof setInterval> | undefined;
@@ -129,8 +128,6 @@ const VoucherForm = () => {
         }
       }
 
-      setApiResponse("Vouchers submitted successfully!");
-
       const lastVoucher = vouchers[vouchers.length - 1];
       const lastVoucherDate = lastVoucher?.InvoiceEntryDate;
       if (lastVoucherDate) {
@@ -144,7 +141,7 @@ const VoucherForm = () => {
       setIsCloudLoading(false);
     } catch (error) {
       console.error("Error submitting data:", error);
-      setApiResponse("Error submitting vouchers to the cloud.");
+      toast.error("Error Submitting Data To Cloud!")
       setIsCloudLoading(false);
     }
   };
