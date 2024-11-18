@@ -5,7 +5,6 @@ import VoucherList from "./voucherList";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import toast from "react-hot-toast";
-import ApiResponseAlert from "./apiResponseAlert";
 import { _Voucher } from "@/constants";
 import VoucherContext from "@/context/VoucherContext";
 
@@ -203,13 +202,6 @@ const VoucherForm = () => {
           vouchers={vouchers}
           onSelect={setSelectedEntries}
           selectedEntries={selectedEntries}
-        />
-      )}
-      {apiResponse && (
-        <ApiResponseAlert
-          response={apiResponse}
-          title={"Response from the cloud"}
-          variant={"default"}
         />
       )}
     </>
