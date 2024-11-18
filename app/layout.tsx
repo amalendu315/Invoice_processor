@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/header";
@@ -30,6 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Analytics />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
