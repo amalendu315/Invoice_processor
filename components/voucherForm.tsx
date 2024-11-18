@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "./ui/card";
 import VoucherList from "./voucherList";
 import { Button } from "./ui/button";
@@ -7,7 +7,6 @@ import { Input } from "./ui/input";
 import toast from "react-hot-toast";
 import ApiResponseAlert from "./apiResponseAlert";
 import { _Voucher } from "@/constants";
-import { Checkbox } from "./ui/checkbox";
 
 const VoucherForm = () => {
   const [isSalesLoading, setIsSalesLoading] = useState(false);
@@ -16,41 +15,39 @@ const VoucherForm = () => {
   const [vouchers, setVouchers] = useState<_Voucher[]>([]);
   const [selectedEntries, setSelectedEntries] = useState<number[]>([]);
   const [apiResponse, setApiResponse] = useState<string | null>(null);
-  const [autoPushEnabled, setAutoPushEnabled] = useState(false);
-  const [autoPushInterval, setAutoPushInterval] = useState(43200000); // 12 hours in milliseconds
 
-  useEffect(() => {
-    let intervalId: ReturnType<typeof setInterval> | undefined;
-    if (autoPushEnabled) {
-      intervalId = setInterval(async () => {
-        const start = 1;
-        const end = 10;
-        try {
-          const response = await fetch(`/api/sales?start=${start}&end=${end}`);
-          const data = await response.json();
-          const voucherNumbers = data.map(
-            (voucher: { number: string }) => voucher.number
-          );
-          await fetch("/api/cloud", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ vouchers: voucherNumbers }),
-          });
-          toast.success("Vouchers pushed automatically!");
-        } catch (error) {
-          console.error("Error in automatic voucher push:", error);
-          toast.error("Failed to push vouchers automatically.");
-        }
-      }, autoPushInterval);
-    }
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [autoPushEnabled, autoPushInterval]);
+  // useEffect(() => {
+  //   let intervalId: ReturnType<typeof setInterval> | undefined;
+  //   if (autoPushEnabled) {
+  //     intervalId = setInterval(async () => {
+  //       const start = 1;
+  //       const end = 10;
+  //       try {
+  //         const response = await fetch(`/api/sales?start=${start}&end=${end}`);
+  //         const data = await response.json();
+  //         const voucherNumbers = data.map(
+  //           (voucher: { number: string }) => voucher.number
+  //         );
+  //         await fetch("/api/cloud", {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify({ vouchers: voucherNumbers }),
+  //         });
+  //         toast.success("Vouchers pushed automatically!");
+  //       } catch (error) {
+  //         console.error("Error in automatic voucher push:", error);
+  //         toast.error("Failed to push vouchers automatically.");
+  //       }
+  //     }, autoPushInterval);
+  //   }
+  //   return () => {
+  //     if (intervalId) {
+  //       clearInterval(intervalId);
+  //     }
+  //   };
+  // }, [autoPushEnabled, autoPushInterval]);
 
   const handleFetchSalesEntries = async () => {
     try {
@@ -125,9 +122,9 @@ const VoucherForm = () => {
             `Cloud server responded with status ${response.status}`
           );
         } else {
-          {
-            i !== 0 && toast.success(`${i} Vouchers Pushed!`);
-          }
+          if (i !== 0) {
+            toast.success(`${i} Vouchers Pushed!`);
+          } 
         }
       }
 
