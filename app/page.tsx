@@ -10,7 +10,7 @@ import AuthContext from "@/context/AuthContext";
 export default function Home() {
   const {isAuthenticated, setIsAuthenticated} = useContext(AuthContext)
   const [isLoading, setIsLoading] = useState(false)
-  const [showLoginForm, setShowLoginForm] = useState(true);
+  const [showLoginForm, setShowLoginForm] = useState(false);
   const [userName, setUserName] = useState("");
   const [passWord, setPassWord] = useState("");
   const defaultLoginCreds = {

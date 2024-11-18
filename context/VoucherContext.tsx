@@ -11,16 +11,25 @@ const VoucherContext = createContext({
 export const VoucherProvider = ({ children }:{children:React.ReactNode}) => {
   const [lastUpdatedVoucherDate, setLastUpdatedVoucherDate] = useState("");
 
-  useEffect(() => {
-    const storedDate = localStorage.getItem("lastUpdatedVoucherDate");
-    if (storedDate) {
-      setLastUpdatedVoucherDate(storedDate);
-    }
-  }, []);
+   useEffect(() => {
+     const storedDate = localStorage.getItem("lastUpdatedVoucherDate");
+     if (storedDate) {
+       setLastUpdatedVoucherDate(storedDate);
+     }
+   }, []);
+
+   // Function to update the context and localStorage
+   const updateLastUpdatedVoucherDate = (date: string) => {
+     setLastUpdatedVoucherDate(date);
+     localStorage.setItem("lastUpdatedVoucherDate", date);
+   };
 
   return (
     <VoucherContext.Provider
-      value={{ lastUpdatedVoucherDate, setLastUpdatedVoucherDate }}
+      value={{
+        lastUpdatedVoucherDate,
+        setLastUpdatedVoucherDate: updateLastUpdatedVoucherDate,
+      }}
     >
       {children}
     </VoucherContext.Provider>

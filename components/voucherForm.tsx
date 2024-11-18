@@ -189,11 +189,6 @@ const VoucherForm = () => {
             >
               Submit to Cloud
             </Button>
-            {apiResponse && (
-              <div className="mt-4">
-                <p>{apiResponse}</p>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
