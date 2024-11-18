@@ -7,27 +7,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import toast from "react-hot-toast";
 
 export default function Home() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [showLoginForm, setShowLoginForm] = useState(false);
-  const [userName, setUserName] = useState("defaultUser");
+  const [isLoading, setIsLoading] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(true);
+  const [userName, setUserName] = useState("");
   const [passWord, setPassWord] = useState("");
+  const defaultLoginCreds = {
+    username:"Admin",
+    password:"Admin"
+  }
 
   const handleLogin = (
-    username: "defaultUser",
-    password: "defaultPassword"
+    username:string,
+    password:string,
   ) => {
-    if (username === userName && password === passWord) {
+    setIsLoading(true);
+    if (username === defaultLoginCreds.username && password === defaultLoginCreds.password) {
       setIsAuthenticated(true);
       setShowLoginForm(false);
+      toast.success("Logged In")
+      setIsLoading(false);
     } else {
       toast.error("Invalid Credentials");
+      setIsLoading(false);
     }
   };
 
   if (showLoginForm) {
     return (
-      <div className="flex flex-col items-center justify-center gap-16 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <Card>
+      <div className="flex flex-col items-center justify-center h-[88vh] gap-16 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <Card className="w-auto overflow-x-auto h-auto">
           <CardHeader>
             <CardTitle className="text-center">Login</CardTitle>
           </CardHeader>
@@ -48,7 +57,8 @@ export default function Home() {
               <Button
                 type="submit"
                 variant={"outline"}
-                onClick={() => handleLogin("defaultUser", "defaultPassword")}
+                onClick={() => handleLogin(userName, passWord)}
+                disabled={isLoading}
               >
                 Login
               </Button>
