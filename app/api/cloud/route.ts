@@ -1,6 +1,9 @@
 import axios from "axios";
 import { NextResponse } from "next/server";
 
+import { cloudURL, cloudAuthToken } from "@/constants/index";
+
+
 interface ResponseType {
   data: [
     {
@@ -17,12 +20,12 @@ export async function POST(request: Request) {
 
     // Submit the data to the cloud server using Axios
     const response:ResponseType = await axios.post(
-      "https://saleszing.info/saleszingexchange/uat/aq/vouchers.php",
+      cloudURL,
       { data: data },
       {
         headers: {
           "Content-Type": "application/json",
-          Authtoken: "6719dabc927fd",
+          Authtoken: cloudAuthToken,
         },
       }
     );

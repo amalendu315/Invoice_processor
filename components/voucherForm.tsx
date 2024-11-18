@@ -1,9 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-} from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 import VoucherList from "./voucherList";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -13,6 +10,8 @@ import { _Voucher } from "@/constants";
 import { Checkbox } from "./ui/checkbox";
 
 const VoucherForm = () => {
+  const [isSalesLoading, setIsSalesLoading] = useState(false);
+  const [isCloudLoading, setIsCloudLoading] = useState(false);
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [vouchers, setVouchers] = useState<_Voucher[]>([]);
   const [selectedEntries, setSelectedEntries] = useState<number[]>([]);
@@ -22,7 +21,7 @@ const VoucherForm = () => {
 
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | undefined;
-    if(autoPushEnabled){
+    if (autoPushEnabled) {
       intervalId = setInterval(async () => {
         const start = 1;
         const end = 10;
@@ -51,93 +50,104 @@ const VoucherForm = () => {
         clearInterval(intervalId);
       }
     };
-  }, [autoPushEnabled, autoPushInterval])
-  
+  }, [autoPushEnabled, autoPushInterval]);
 
   const handleFetchSalesEntries = async () => {
-      
-      try {
-            const response = await fetch(
-                `/api/sales?startDate=${dateRange.start}&endDate=${dateRange.end}`
-            );
-            const data = await response.json();
-            // console.log('data', data?.data)
-            setVouchers(data?.data);
+    try {
+      setIsSalesLoading(true);
+      const response = await fetch(
+        `/api/sales?startDate=${dateRange.start}&endDate=${dateRange.end}`
+      );
+
+      const data = await response?.json();
+      if (!response?.ok) {
+        toast.error("No Data Found");
+      } else {
+        setVouchers(data?.data);
         toast.success("Fetched Data For Selected Range!");
-        console.log('vouchers', vouchers)
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("Error Fetching The Data :(");
       }
+      // console.log('data', data?.data)
+
+      setIsSalesLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Error Fetching The Data :(");
+      setIsSalesLoading(false);
+    }
   };
 
   const handleSubmitToCloud = async () => {
-   try {
-     const vouchersPerRequest = 100;
-     for (let i = 0; i < selectedEntries.length; i += vouchersPerRequest) {
-       const dataForCloud = selectedEntries
-         .slice(i, i + vouchersPerRequest)
-         .map((index) => {
-           const voucher = vouchers[index];
-           return {
-             branchName: "AirIQ",
-             vouchertype: "Sales",
-             voucherno: `${voucher.FinPrefix}/${voucher.InvoiceNo}`,
-             voucherdate: voucher.SaleEntryDate.split("T")[0].replace(
-               /-/g,
-               "/"
-             ),
-             narration: voucher.Pnr,
-             ledgerAllocation: [
-               {
-                 lineno: 1,
-                 ledgerName: voucher.AccountName,
-                 amount: voucher.FinalRate.toFixed(2),
-                 drCr: "dr",
-               },
-               {
-                 lineno: 2,
-                 ledgerName: "Domestic Base Fare",
-                 amount: voucher.FinalRate.toFixed(2),
-                 drCr: "cr",
-               },
-             ],
-           };
-         });
+    try {
+      setIsCloudLoading(true);
+      const vouchersPerRequest = 50;
+      for (let i = 0; i < selectedEntries.length; i += vouchersPerRequest) {
+        const dataForCloud = selectedEntries
+          .slice(i, i + vouchersPerRequest)
+          .map((index) => {
+            const voucher = vouchers[index];
+            return {
+              branchName: "AirIQ",
+              vouchertype: "Sales",
+              voucherno: `${voucher.FinPrefix}/${voucher.InvoiceNo}`,
+              voucherdate: voucher.SaleEntryDate.split("T")[0].replace(
+                /-/g,
+                "/"
+              ),
+              narration: voucher.Pnr,
+              ledgerAllocation: [
+                {
+                  lineno: 1,
+                  ledgerName: voucher.AccountName,
+                  amount: voucher.FinalRate.toFixed(2),
+                  drCr: "dr",
+                },
+                {
+                  lineno: 2,
+                  ledgerName: "Domestic Base Fare",
+                  amount: voucher.FinalRate.toFixed(2),
+                  drCr: "cr",
+                },
+              ],
+            };
+          });
 
-       const response = await fetch("/api/cloud", {
-         method: "POST",
-         headers: {
-           "Content-Type": "application/json",
-         },
-         body: JSON.stringify({ data: dataForCloud }),
-       });
+        const response = await fetch("/api/cloud", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ data: dataForCloud }),
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Cloud server error:", response.status, errorText);
+          throw new Error(
+            `Cloud server responded with status ${response.status}`
+          );
+        } else {
+          {
+            i !== 0 && toast.success(`${i} Vouchers Pushed!`);
+          }
+        }
+      }
 
-       if (!response.ok) {
-         const errorText = await response.text();
-         console.error("Cloud server error:", response.status, errorText);
-         throw new Error(
-           `Cloud server responded with status ${response.status}`
-         );
-       }
+      setApiResponse("Vouchers submitted successfully!");
 
-       console.log("API response:", await response.json());
-     }
-
-     setApiResponse("Vouchers submitted successfully!");
-
-     const lastVoucher = vouchers[vouchers.length - 1];
-     const lastVoucherDate = lastVoucher?.InvoiceEntryDate;
-     if (lastVoucherDate) {
-       const formattedDate = new Date(lastVoucherDate)
-         .toISOString()
-         .split("T")[0];
-       localStorage.setItem("lastUpdatedVoucherDate", formattedDate);
-     }
-   } catch (error) {
-     console.error("Error submitting data:", error);
-     setApiResponse("Error submitting vouchers to the cloud.");
-   }
+      const lastVoucher = vouchers[vouchers.length - 1];
+      const lastVoucherDate = lastVoucher?.InvoiceEntryDate;
+      if (lastVoucherDate) {
+        const formattedDate = new Date(lastVoucherDate)
+          .toISOString()
+          .split("T")[0];
+        localStorage.setItem("lastUpdatedVoucherDate", formattedDate);
+      }
+      toast.success("Vouchers Submitted Successfully!");
+      setIsCloudLoading(false);
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      setApiResponse("Error submitting vouchers to the cloud.");
+      setIsCloudLoading(false);
+    }
   };
   return (
     <>
@@ -166,7 +176,7 @@ const VoucherForm = () => {
                 }
               />
             </div>
-            <Button onClick={handleFetchSalesEntries}>
+            <Button onClick={handleFetchSalesEntries} disabled={isSalesLoading}>
               Fetch Sales Entries
             </Button>
             {vouchers?.length > 0 && (
@@ -176,31 +186,14 @@ const VoucherForm = () => {
                 selectedEntries={selectedEntries}
               />
             )}
-            <Button onClick={handleSubmitToCloud}>Submit to Cloud</Button>
+            <Button onClick={handleSubmitToCloud} disabled={isCloudLoading}>
+              Submit to Cloud
+            </Button>
             {apiResponse && (
               <div className="mt-4">
                 <p>{apiResponse}</p>
               </div>
             )}
-            <Checkbox
-              checked={autoPushEnabled}
-              onCheckedChange={() => setAutoPushEnabled(!autoPushEnabled)}
-            >
-              Enable automatic voucher push
-            </Checkbox>
-            <div>
-              <label htmlFor="autoPushInterval">
-                Auto-push interval (hours):
-              </label>
-              <Input
-                id="autoPushInterval"
-                type="number"
-                value={autoPushInterval / 3600000}
-                onChange={(e) =>
-                  setAutoPushInterval(Number(e.target.value) * 3600000)
-                }
-              />
-            </div>
           </div>
         </CardContent>
       </Card>

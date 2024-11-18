@@ -60,7 +60,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-[100vh] gap-16 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="flex flex-col items-center justify-center h-[100vh] p-4 gap-16 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="w-full overflow-x-auto h-full">
         {isAuthenticated && <VoucherForm />}
       </div>

@@ -1,6 +1,8 @@
 import axios from "axios";
 import { NextResponse } from "next/server";
 
+import { salesURL,authorization,cookie } from "@/constants/index";
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -13,12 +15,12 @@ export async function GET(request: Request) {
     const config = {
       method: "post",
       maxBodyLength: Infinity,
-      url: "https://airiqvendorapi.azurewebsites.net/InvoiceList",
+      url: salesURL,
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Basic b20gbmFtYWggc2hpdmF5OnByaW5jZQ==",
+        Authorization: authorization,
         Cookie:
-          "ARRAffinity=dc44538bde588bbf33f0abdbc1a6ea1f8ff08b8b22a3727832fedbffd6bf1839; ARRAffinitySameSite=dc44538bde588bbf33f0abdbc1a6ea1f8ff08b8b22a3727832fedbffd6bf1839",
+          cookie,
       },
       data: {
         from_date: formattedStartDate,
@@ -27,6 +29,12 @@ export async function GET(request: Request) {
     };
 
     const response = await axios.request(config);
+    if(response?.data?.code === 404){
+      return NextResponse.json(
+        { error: "No Data Found" },
+        { status: 404 }
+      );
+    }
     return NextResponse.json(response.data);
   } catch (error) {
     console.error("Error fetching data:", error);
