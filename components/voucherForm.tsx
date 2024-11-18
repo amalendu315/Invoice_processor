@@ -153,7 +153,7 @@ const VoucherForm = () => {
     <>
       <Card>
         <CardContent>
-          <div className="grid gap-4 pt-4">
+          <div className="grid grid-cols-4 gap-4 pt-4 items-center ">
             <div>
               <label htmlFor="startDate">Start Date:</label>
               <Input
@@ -176,17 +176,18 @@ const VoucherForm = () => {
                 }
               />
             </div>
-            <Button onClick={handleFetchSalesEntries} disabled={isSalesLoading}>
+            <Button
+              className="mt-5"
+              onClick={handleFetchSalesEntries}
+              disabled={isSalesLoading}
+            >
               Fetch Sales Entries
             </Button>
-            {vouchers?.length > 0 && (
-              <VoucherList
-                vouchers={vouchers}
-                onSelect={setSelectedEntries}
-                selectedEntries={selectedEntries}
-              />
-            )}
-            <Button onClick={handleSubmitToCloud} disabled={isCloudLoading}>
+            <Button
+              className="mt-5"
+              onClick={handleSubmitToCloud}
+              disabled={isCloudLoading}
+            >
               Submit to Cloud
             </Button>
             {apiResponse && (
@@ -197,6 +198,13 @@ const VoucherForm = () => {
           </div>
         </CardContent>
       </Card>
+      {vouchers?.length > 0 && (
+        <VoucherList
+          vouchers={vouchers}
+          onSelect={setSelectedEntries}
+          selectedEntries={selectedEntries}
+        />
+      )}
       {apiResponse && (
         <ApiResponseAlert
           response={apiResponse}

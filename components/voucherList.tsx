@@ -77,7 +77,7 @@ export default function VoucherList({
     return null;
   } else {
     return (
-      <div className="overflow-y-auto">
+      <div className="overflow-y-auto bg-slate-100 mt-3 pb-4 pt-2">
         <Table>
           <TableHeader>
             <TableRow>
