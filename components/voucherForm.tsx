@@ -9,7 +9,7 @@ import { _Voucher } from "@/constants";
 import VoucherContext from "@/context/VoucherContext";
 
 const VoucherForm = () => {
-  const { setLastUpdatedVoucherDate } = React.useContext(VoucherContext);
+  const { setLastUpdatedVoucherDate, setSubmissionDate } = React.useContext(VoucherContext);
   const [isSalesLoading, setIsSalesLoading] = useState(false);
   const [isCloudLoading, setIsCloudLoading] = useState(false);
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
@@ -77,6 +77,8 @@ const VoucherForm = () => {
     try {
       setIsCloudLoading(true);
       const vouchersPerRequest = 50;
+      const currentDate = new Date().toISOString().split("T")[0];
+      setSubmissionDate(currentDate);
       for (let i = 0; i < selectedEntries.length; i += vouchersPerRequest) {
         const dataForCloud = selectedEntries
           .slice(i, i + vouchersPerRequest)

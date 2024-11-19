@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import toast from "react-hot-toast";
 import AuthContext from "@/context/AuthContext";
+import Sidebar from "@/components/sidebar";
 
 export default function Home() {
   const {isAuthenticated, setIsAuthenticated} = useContext(AuthContext)
@@ -71,8 +72,9 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-[100vh] p-4 gap-16 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="w-full overflow-x-auto h-full">
+    <div className="flex items-center justify-center h-[100vh] p-4 gap-16 font-[family-name:var(--font-geist-sans)] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <Sidebar />
+      <div className="w-full ml-64 flex-grow overflow-x-auto h-full">
         {isAuthenticated && <VoucherForm />}
       </div>
     </div>
