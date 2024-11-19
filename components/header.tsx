@@ -1,9 +1,7 @@
 "use client";
 import React from 'react'
-import VoucherContext from '@/context/VoucherContext';
 
 const Header = () => {
- const { lastUpdatedVoucherDate } = React.useContext(VoucherContext);
   return (
     <>
       <div className=" flex flex-col justify-center items-center bg-gradient-to-r from-gray-800 to-gray-900">

@@ -3,7 +3,6 @@
 "use client";
 import React, { useContext } from "react";
 import VoucherContext from "@/context/VoucherContext";
-import AuthContext from "@/context/AuthContext";
 
 const SideHeader = () => {
   const { lastUpdatedVoucherDate, submissionDate } = useContext(VoucherContext);
