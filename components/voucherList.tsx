@@ -90,7 +90,6 @@ export default function VoucherList({
               <TableHead>Invoice ID</TableHead> {/* Added Invoice ID */}
               <TableHead>Invoice No</TableHead>
               <TableHead>Sale ID</TableHead> {/* Added Sale ID */}
-              <TableHead>FinYID</TableHead> {/* Added FinYID */}
               <TableHead>Invoice Entry Date</TableHead>
               {/* Added Invoice Entry Date */}
               <TableHead>Prefix</TableHead> {/* Added Prefix */}
@@ -114,7 +113,6 @@ export default function VoucherList({
                 <TableCell>{voucher.InvoiceID}</TableCell>
                 <TableCell>{voucher.InvoiceNo}</TableCell>
                 <TableCell>{voucher.SaleID}</TableCell> {/* Added Sale ID */}
-                <TableCell>{voucher.FinYID}</TableCell> {/* Added FinYID */}
                 <TableCell>
                   {format(
                     new Date(voucher.InvoiceEntryDate),

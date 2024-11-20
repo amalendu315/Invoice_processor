@@ -11,7 +11,7 @@ import Sidebar from "@/components/sidebar";
 export default function Home() {
   const {isAuthenticated, setIsAuthenticated} = useContext(AuthContext)
   const [isLoading, setIsLoading] = useState(false)
-  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(true);
   const [userName, setUserName] = useState("");
   const [passWord, setPassWord] = useState("");
   const defaultLoginCreds = {
